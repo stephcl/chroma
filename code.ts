@@ -55,7 +55,7 @@ ref.forEach((layer: any) => {
   } else if (layer.type === "GROUP" || layer.type === "FRAME") {
     // console.log(layer.children);
     // find child layers that are not another group or frame
-    let colorlayers = []
+    let colorlayers = [] 
     colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR")
     console.log(colorlayers);
     if (colorlayers.length <= 0) {
