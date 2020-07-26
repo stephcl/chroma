@@ -17,7 +17,11 @@ ref.sort(function (a, b) {
 // ref.reverse()
 
 ref.forEach((layer: any) => {
+  figma.showUI(__html__)
 
+  figma.ui.onmessage = (message) => {
+    console.log("got this from the UI", message)
+  }
   // make sure it's a vector
   if (layer.type === "RECTANGLE" || layer.type === "ELLIPSE" || layer.type === "POLYGON" || layer.type === "VECTOR") {
 
@@ -54,9 +58,9 @@ ref.forEach((layer: any) => {
 
   } else if (layer.type === "GROUP" || layer.type === "FRAME") {
     // find child layers that are not another group or frame
-    let colorlayers = [] 
+    let colorlayers = []
     colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR")
-    console.log(colorlayers);
+    //console.log(colorlayers);
     if (colorlayers.length <= 0) {
       figma.closePlugin('Please select a Group or Frame that has a Rectangle, Ellipse, Polygon, or Vector.')
     } else {

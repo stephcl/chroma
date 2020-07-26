@@ -1,0 +1,11 @@
+<h1>What is the prefix?</h1>
+<input id="stylename">
+<button id="yes">This</button>
+<button id="cancel">Cancel</button>
+
+<script>
+    document.getElementById('cancel').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'swap' } }, '*')
+}
+    
+</script>
