@@ -16,12 +16,10 @@ ref.sort(function (a, b) {
 // TODO: turn this into an dropdown option
 // ref.reverse()
 
-ref.forEach((layer: any) => {
-  figma.showUI(__html__)
 
-  figma.ui.onmessage = (message) => {
-    console.log("got this from the UI", message)
-  }
+
+
+ref.forEach((layer: any) => {
   // make sure it's a vector
   if (layer.type === "RECTANGLE" || layer.type === "ELLIPSE" || layer.type === "POLYGON" || layer.type === "VECTOR") {
 
@@ -50,13 +48,14 @@ ref.forEach((layer: any) => {
       layer.fillStyleId = newStyle.id
 
       // console log the output
-      console.log('🎉 Created style ' + layer.name)
+      console.log('🎉 Created style ' + layer.name + 'test')
 
     } else {
       ignoredCounter++
     }
 
   } else if (layer.type === "GROUP" || layer.type === "FRAME") {
+    console.log('test')
     // find child layers that are not another group or frame
     let colorlayers = []
     colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR")
@@ -92,7 +91,7 @@ ref.forEach((layer: any) => {
           child.fillStyleId = newStyle.id
 
           // console log the output
-          console.log('🎉 Created style ' + child.name)
+          console.log('🎉 Created style ' + child.name + 'test')
 
 
         } else {

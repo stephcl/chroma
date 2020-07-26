@@ -4,8 +4,7 @@
 <button id="cancel">Cancel</button>
 
 <script>
-    document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'swap' } }, '*')
-}
-    
+document.getElementById('cancel').onclick = () => {
+    parent.postMessage({ pluginMessage: 'anything here' }, '*')
+};  
 </script>
