@@ -1,5 +1,5 @@
 if (figma.currentPage.selection.length <= 0) {
-  figma.closePlugin('Please select a Rectanle, Ellipse, Polygon, Frame or Group before running this plugin')
+  figma.closePlugin('Please select a Rectangle, Ellipse, Polygon, Frame or Group before running this plugin')
 }
 
 let ignoredCounter = 0
@@ -58,7 +58,7 @@ ref.forEach((layer: any) => {
     const colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR")
     console.log(colorlayers);
     if (colorlayers.length <= 0) {
-      figma.closePlugin('Please select a Group or Frame that has a Rectanle, Ellipse, Polygon, or Vector.')
+      figma.closePlugin('Please select a Group or Frame that has a Rectangle, Ellipse, Polygon, or Vector.')
     } else {
       //needs to be for each color in selected
       colorlayers.forEach(function (child) {
@@ -100,7 +100,7 @@ ref.forEach((layer: any) => {
 
 
   } else {
-    figma.closePlugin('Please select a Rectanle, Ellipse, Polygon, Vector, Frame, or Group before running this plugin')
+    figma.closePlugin('Please select a Rectangle, Ellipse, Polygon, Vector, Frame, or Group before running this plugin')
   }
 });
 
