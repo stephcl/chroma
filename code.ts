@@ -2,6 +2,9 @@ if (figma.currentPage.selection.length <= 0) {
   figma.closePlugin('Please select a Rectangle, Ellipse, Polygon, Frame or Group before running this plugin')
 }
 
+figma.showUI(__html__)
+
+
 let ignoredCounter = 0
 let ref = []
 let selection = figma.currentPage.selection
@@ -16,8 +19,28 @@ ref.sort(function (a, b) {
 // TODO: turn this into an dropdown option
 // ref.reverse()
 
+let stylegroupname = ""
 
+figma.ui.onmessage = (message) => {
+  // console.log("got this from the UI", message, message.type)
+  stylegroupname = message
+  console.log(stylegroupname)
+  console.log(message.type)
 
+  if (message.type === 'cancel') {
+    figma.closePlugin()
+  }
+}
+
+// figma.ui.onmessage = msg => {
+//   if (msg.type === 'test') {
+//     console.log(msg)
+//   }
+// }
+
+// figma.ui.onmessage = msg => {
+//   console.log(msg)
+// }
 
 ref.forEach((layer: any) => {
   // make sure it's a vector
@@ -48,14 +71,14 @@ ref.forEach((layer: any) => {
       layer.fillStyleId = newStyle.id
 
       // console log the output
-      console.log('🎉 Created style ' + layer.name + 'test')
+      console.log('🎉 Created style ' + layer.name)
 
     } else {
       ignoredCounter++
     }
 
   } else if (layer.type === "GROUP" || layer.type === "FRAME") {
-    console.log('test')
+
     // find child layers that are not another group or frame
     let colorlayers = []
     colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR")
@@ -91,7 +114,7 @@ ref.forEach((layer: any) => {
           child.fillStyleId = newStyle.id
 
           // console log the output
-          console.log('🎉 Created style ' + child.name + 'test')
+          console.log('🎉 Created style ' + child.name)
 
 
         } else {
@@ -109,11 +132,11 @@ ref.forEach((layer: any) => {
 
 figma.currentPage.selection = []
 
-if (ignoredCounter > 0) {
-  figma.closePlugin('⚠️ Warning: ' + ignoredCounter + ' color style(s) already exist and can\'t be added')
-} else {
-  figma.closePlugin();
-}
+//if (ignoredCounter > 0) {
+//  figma.closePlugin('⚠️ Warning: ' + ignoredCounter + ' color style(s) already exist and can\'t be added')
+//} else {
+//  figma.closePlugin();
+//}
 
 function findTheHEX(red: any, green: any, blue: any) {
   var redHEX = rgbToHex(red)

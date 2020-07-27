@@ -1,6 +1,7 @@
 if (figma.currentPage.selection.length <= 0) {
     figma.closePlugin('Please select a Rectangle, Ellipse, Polygon, Frame or Group before running this plugin');
 }
+figma.showUI(__html__);
 let ignoredCounter = 0;
 let ref = [];
 let selection = figma.currentPage.selection;
@@ -12,6 +13,24 @@ ref.sort(function (a, b) {
 });
 // TODO: turn this into an dropdown option
 // ref.reverse()
+let stylegroupname = "";
+figma.ui.onmessage = (message) => {
+    // console.log("got this from the UI", message, message.type)
+    stylegroupname = message;
+    console.log(stylegroupname);
+    console.log(message.type);
+    if (message.type === 'cancel') {
+        figma.closePlugin();
+    }
+};
+// figma.ui.onmessage = msg => {
+//   if (msg.type === 'test') {
+//     console.log(msg)
+//   }
+// }
+// figma.ui.onmessage = msg => {
+//   console.log(msg)
+// }
 ref.forEach((layer) => {
     // make sure it's a vector
     if (layer.type === "RECTANGLE" || layer.type === "ELLIPSE" || layer.type === "POLYGON" || layer.type === "VECTOR") {
@@ -42,10 +61,10 @@ ref.forEach((layer) => {
         }
     }
     else if (layer.type === "GROUP" || layer.type === "FRAME") {
-        // console.log(layer.children);
         // find child layers that are not another group or frame
-        const colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR");
-        console.log(colorlayers);
+        let colorlayers = [];
+        colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR");
+        //console.log(colorlayers);
         if (colorlayers.length <= 0) {
             figma.closePlugin('Please select a Group or Frame that has a Rectangle, Ellipse, Polygon, or Vector.');
         }
@@ -87,12 +106,11 @@ ref.forEach((layer) => {
     }
 });
 figma.currentPage.selection = [];
-if (ignoredCounter > 0) {
-    figma.closePlugin('⚠️ Warning: ' + ignoredCounter + ' color style(s) already exist and can\'t be added');
-}
-else {
-    figma.closePlugin();
-}
+//if (ignoredCounter > 0) {
+//  figma.closePlugin('⚠️ Warning: ' + ignoredCounter + ' color style(s) already exist and can\'t be added')
+//} else {
+//  figma.closePlugin();
+//}
 function findTheHEX(red, green, blue) {
     var redHEX = rgbToHex(red);
     var greenHEX = rgbToHex(green);

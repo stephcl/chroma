@@ -4,7 +4,22 @@
 <button id="cancel">Cancel</button>
 
 <script>
-document.getElementById('cancel').onclick = () => {
-    parent.postMessage({ pluginMessage: 'anything here' }, '*')
-};  
+    // parent.postMessage({
+    //     pluginMessage: 'anything here'
+    // }, '*');
+
+    document.getElementById('cancel').onclick = () => {
+        parent.postMessage({
+            pluginMessage: {
+                type: 'cancel'
+            }
+        }, '*')
+    };
+
+    document.getElementById('yes').onclick = () => {
+        var getstylename = document.getElementById('stylename').value;
+        parent.postMessage({
+            pluginMessage: getstylename
+        }, '*')
+    };
 </script>
