@@ -1,7 +1,6 @@
 if (figma.currentPage.selection.length <= 0) {
     figma.closePlugin('Please select a Rectangle, Ellipse, Polygon, Frame or Group before running this plugin');
 }
-figma.showUI(__html__);
 let ignoredCounter = 0;
 let ref = [];
 let selection = figma.currentPage.selection;
@@ -13,24 +12,18 @@ ref.sort(function (a, b) {
 });
 // TODO: turn this into an dropdown option
 // ref.reverse()
+figma.showUI(__html__);
 let stylegroupname = "";
 figma.ui.onmessage = (message) => {
-    // console.log("got this from the UI", message, message.type)
-    stylegroupname = message;
-    console.log(stylegroupname);
-    console.log(message.type);
     if (message.type === 'cancel') {
         figma.closePlugin();
     }
+    else if (message.type === 'test') {
+        stylegroupname = message.getstylename;
+        console.log(stylegroupname);
+        console.log(message.type);
+    }
 };
-// figma.ui.onmessage = msg => {
-//   if (msg.type === 'test') {
-//     console.log(msg)
-//   }
-// }
-// figma.ui.onmessage = msg => {
-//   console.log(msg)
-// }
 ref.forEach((layer) => {
     // make sure it's a vector
     if (layer.type === "RECTANGLE" || layer.type === "ELLIPSE" || layer.type === "POLYGON" || layer.type === "VECTOR") {
@@ -39,7 +32,7 @@ ref.forEach((layer) => {
             var newStyle = figma.createPaintStyle();
             var hex = findTheHEX(layer.fills[0].color.r, layer.fills[0].color.g, layer.fills[0].color.b);
             //naming the paint style with the layer name
-            newStyle.name = layer.name;
+            newStyle.name = stylegroupname + " " + layer.name;
             newStyle.description = hex.toUpperCase();
             //assigning the color
             newStyle.paints = [{

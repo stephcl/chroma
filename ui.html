@@ -19,7 +19,11 @@
     document.getElementById('yes').onclick = () => {
         var getstylename = document.getElementById('stylename').value;
         parent.postMessage({
-            pluginMessage: getstylename
+            pluginMessage: {
+                type: "test", 
+                getstylename
+            }
+            
         }, '*')
     };
 </script>

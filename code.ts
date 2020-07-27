@@ -2,7 +2,6 @@ if (figma.currentPage.selection.length <= 0) {
   figma.closePlugin('Please select a Rectangle, Ellipse, Polygon, Frame or Group before running this plugin')
 }
 
-figma.showUI(__html__)
 
 
 let ignoredCounter = 0
@@ -19,138 +18,130 @@ ref.sort(function (a, b) {
 // TODO: turn this into an dropdown option
 // ref.reverse()
 
+figma.showUI(__html__)
 let stylegroupname = ""
 
 figma.ui.onmessage = (message) => {
-  // console.log("got this from the UI", message, message.type)
-  stylegroupname = message
-  console.log(stylegroupname)
-  console.log(message.type)
 
   if (message.type === 'cancel') {
     figma.closePlugin()
   }
+  else if (message.type === 'test') {
+    stylegroupname = message.getstylename
+    console.log(stylegroupname)
+    console.log(message.type)
+
+  }
 }
+  ref.forEach((layer: any) => {
+    // make sure it's a vector
+    if (layer.type === "RECTANGLE" || layer.type === "ELLIPSE" || layer.type === "POLYGON" || layer.type === "VECTOR") {
 
-// figma.ui.onmessage = msg => {
-//   if (msg.type === 'test') {
-//     console.log(msg)
-//   }
-// }
+      if (!layer.fillStyleId) {
 
-// figma.ui.onmessage = msg => {
-//   console.log(msg)
-// }
+        //creating the paint style
+        var newStyle = figma.createPaintStyle()
+        var hex = findTheHEX(layer.fills[0].color.r, layer.fills[0].color.g, layer.fills[0].color.b)
 
-ref.forEach((layer: any) => {
-  // make sure it's a vector
-  if (layer.type === "RECTANGLE" || layer.type === "ELLIPSE" || layer.type === "POLYGON" || layer.type === "VECTOR") {
+        //naming the paint style with the layer name
+        newStyle.name = stylegroupname + " " + layer.name
+        newStyle.description = hex.toUpperCase()
 
-    if (!layer.fillStyleId) {
+        //assigning the color
+        newStyle.paints = [{
+          type: layer.fills[0].type,
+          color: {
+            r: layer.fills[0].color.r,
+            g: layer.fills[0].color.g,
+            b: layer.fills[0].color.b
+          },
+          opacity: layer.fills[0].opacity
+        }]
 
-      //creating the paint style
-      var newStyle = figma.createPaintStyle()
-      var hex = findTheHEX(layer.fills[0].color.r, layer.fills[0].color.g, layer.fills[0].color.b)
+        //applying the style to the selected layer
+        layer.fillStyleId = newStyle.id
 
-      //naming the paint style with the layer name
-      newStyle.name = layer.name
-      newStyle.description = hex.toUpperCase()
+        // console log the output
+        console.log('🎉 Created style ' + layer.name)
 
-      //assigning the color
-      newStyle.paints = [{
-        type: layer.fills[0].type,
-        color: {
-          r: layer.fills[0].color.r,
-          g: layer.fills[0].color.g,
-          b: layer.fills[0].color.b
-        },
-        opacity: layer.fills[0].opacity
-      }]
+      } else {
+        ignoredCounter++
+      }
 
-      //applying the style to the selected layer
-      layer.fillStyleId = newStyle.id
+    } else if (layer.type === "GROUP" || layer.type === "FRAME") {
 
-      // console log the output
-      console.log('🎉 Created style ' + layer.name)
+      // find child layers that are not another group or frame
+      let colorlayers = []
+      colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR")
+      //console.log(colorlayers);
+      if (colorlayers.length <= 0) {
+        figma.closePlugin('Please select a Group or Frame that has a Rectangle, Ellipse, Polygon, or Vector.')
+      } else {
+        //needs to be for each color in selected
+        colorlayers.forEach(function (child) {
+          //console.log(child);
+          //now add colors from those layers if they don't already have a color style applied
+          if (!child.fillStyleId) {
+            //creating the paint style
+            var newStyle = figma.createPaintStyle()
+            var hex = findTheHEX(child.fills[0].color.r, child.fills[0].color.g, child.fills[0].color.b)
+
+            //naming the paint style with the layer name
+            newStyle.name = child.name
+            newStyle.description = hex.toUpperCase()
+
+            //assigning the color
+            newStyle.paints = [{
+              type: child.fills[0].type,
+              color: {
+                r: child.fills[0].color.r,
+                g: child.fills[0].color.g,
+                b: child.fills[0].color.b
+              },
+              opacity: child.fills[0].opacity
+            }]
+
+            //applying the style to the selected layer
+            child.fillStyleId = newStyle.id
+
+            // console log the output
+            console.log('🎉 Created style ' + child.name)
+
+
+          } else {
+            ignoredCounter++
+          }
+        })
+      }
+
+
 
     } else {
-      ignoredCounter++
+      figma.closePlugin('Please select a Rectangle, Ellipse, Polygon, Vector, Frame, or Group before running this plugin')
     }
+  });
 
-  } else if (layer.type === "GROUP" || layer.type === "FRAME") {
+  figma.currentPage.selection = []
 
-    // find child layers that are not another group or frame
-    let colorlayers = []
-    colorlayers = layer.findAll(child => child.type === "RECTANGLE" || child.type === "ELLIPSE" || child.type === "POLYGON" || child.type === "VECTOR")
-    //console.log(colorlayers);
-    if (colorlayers.length <= 0) {
-      figma.closePlugin('Please select a Group or Frame that has a Rectangle, Ellipse, Polygon, or Vector.')
-    } else {
-      //needs to be for each color in selected
-      colorlayers.forEach(function (child) {
-        //console.log(child);
-        //now add colors from those layers if they don't already have a color style applied
-        if (!child.fillStyleId) {
-          //creating the paint style
-          var newStyle = figma.createPaintStyle()
-          var hex = findTheHEX(child.fills[0].color.r, child.fills[0].color.g, child.fills[0].color.b)
+  //if (ignoredCounter > 0) {
+  //  figma.closePlugin('⚠️ Warning: ' + ignoredCounter + ' color style(s) already exist and can\'t be added')
+  //} else {
+  //  figma.closePlugin();
+  //}
 
-          //naming the paint style with the layer name
-          newStyle.name = child.name
-          newStyle.description = hex.toUpperCase()
+  function findTheHEX(red: any, green: any, blue: any) {
+    var redHEX = rgbToHex(red)
+    var greenHEX = rgbToHex(green)
+    var blueHEX = rgbToHex(blue)
 
-          //assigning the color
-          newStyle.paints = [{
-            type: child.fills[0].type,
-            color: {
-              r: child.fills[0].color.r,
-              g: child.fills[0].color.g,
-              b: child.fills[0].color.b
-            },
-            opacity: child.fills[0].opacity
-          }]
+    return redHEX + greenHEX + blueHEX
+  }
 
-          //applying the style to the selected layer
-          child.fillStyleId = newStyle.id
-
-          // console log the output
-          console.log('🎉 Created style ' + child.name)
-
-
-        } else {
-          ignoredCounter++
-        }
-      })
+  function rgbToHex(rgb: any) {
+    rgb = Math.floor(rgb * 255)
+    var hex = Number(rgb).toString(16)
+    if (hex.length < 2) {
+      hex = '0' + hex
     }
-
-
-
-  } else {
-    figma.closePlugin('Please select a Rectangle, Ellipse, Polygon, Vector, Frame, or Group before running this plugin')
+    return hex
   }
-});
-
-figma.currentPage.selection = []
-
-//if (ignoredCounter > 0) {
-//  figma.closePlugin('⚠️ Warning: ' + ignoredCounter + ' color style(s) already exist and can\'t be added')
-//} else {
-//  figma.closePlugin();
-//}
-
-function findTheHEX(red: any, green: any, blue: any) {
-  var redHEX = rgbToHex(red)
-  var greenHEX = rgbToHex(green)
-  var blueHEX = rgbToHex(blue)
-
-  return redHEX + greenHEX + blueHEX
-}
-
-function rgbToHex(rgb: any) {
-  rgb = Math.floor(rgb * 255)
-  var hex = Number(rgb).toString(16)
-  if (hex.length < 2) {
-    hex = '0' + hex
-  }
-  return hex
-}
